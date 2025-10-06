@@ -16,7 +16,100 @@ const menuOptions: string[] = [
 
 // Functions
 
+const generateRandomNumber = (number: number): number => {
+    return Math.floor(Math.random() * number);
+}
+
+const clearConsole = (): void => {
+    console.clear();
+}
+
+const displayMessage = (message: string): void => {
+    console.log(message);
+}
+
+const getInputFromUser = (message: string, inputType?: InputTypes): string => {
+    let input: string = readlineSync.question(message);
+
+    while (!validateInput(input, inputType)) {
+        input = readlineSync.question("Invalid input! Try again:\n");
+    }
+
+    return input;
+}
+
+const validateInput = (input: string, inputType?: InputTypes): boolean => {
+    switch (inputType) {
+        case InputTypes.YesOrNo:
+            return input.toUpperCase() === "Y" || input.toUpperCase() === "N";
+        case InputTypes.Letter:
+            return input.length === 1 && alphabet.includes(input.toLowerCase());
+        case InputTypes.MenuOption:
+            const parsedInput: number = parseInt(input);
+            return !isNaN(parsedInput) && parsedInput > 0 && parsedInput < menuOptions.length + 1;
+        default:
+            return true;
+    }
+}
+
+const pickRandomWord = (finalFantasyGames: FinalFantasy[]): string => {
+    let randomIndex: number = generateRandomNumber(finalFantasyGames.length);
+    const randomFinalFantasy: FinalFantasy = finalFantasyGames[randomIndex];
+    randomIndex = generateRandomNumber(randomFinalFantasy.characters.length);
+
+    return randomFinalFantasy.characters[randomIndex];
+}
+
+const convertLettersToUnderscores = (word: string): string => {
+    let wordWithUnderscores: string = "";
+
+    for (let letter of word) {
+        if (letter === " ") {
+            wordWithUnderscores += " ";
+        } else {
+            wordWithUnderscores += "_ ";
+        }
+    }
+
+    return wordWithUnderscores;
+}
+
+const showGameHud = (hangmanDraw: string, wordWithUnderscores: string, numberOfChances: number, alreadyGuessedLetters: string[]): void => {
+    clearConsole();
+    displayMessage(hangmanDraw);
+    displayMessage(wordWithUnderscores + "\n");
+    displayMessage("Already guessed letters: " + alreadyGuessedLetters.join(", "));
+    displayMessage("Number of chances: " + numberOfChances.toString());
+}
+
+const showRules = (): void => {
+    clearConsole();
+    displayMessage(hangmanGameRules);
+    getInputFromUser("Press any key to go back to the main menu.\n");
+    runApp();
+}
+
+const showMenuOptions = (menuOptions: string[]): void => {
+    menuOptions.forEach(option => {
+        displayMessage(option);
+    })
+}
+
+const showEndMessageOfTheGame = (endMessage: string, characterName: string, finalFantasyGames: FinalFantasy[]): void => {
+    let fianlFantasy: FinalFantasy = finalFantasyGames[0];
+    
+    for (let currentFinalFantasy of finalFantasyGames) {
+        if (currentFinalFantasy.characters.includes(characterName)) {
+            fianlFantasy = currentFinalFantasy
+        }
+    }
+
+    displayMessage(endMessage);
+    displayMessage(`${characterName} is from ${fianlFantasy.title}, which was released in ${fianlFantasy.year}.`);
+}
+
 const playGame = (): void => {
+    clearConsole();
     getInputFromUser("Let's play! Press Enter!\n");
 
     let indexOfHangmanDraws: number = 0;
@@ -81,98 +174,8 @@ const playGame = (): void => {
     }
 }
 
-const generateRandomNumber = (number: number): number => {
-    return Math.floor(Math.random() * number);
-}
-
-const clearConsole = (): void => {
-    console.clear();
-}
-
-const displayMessage = (message: string): void => {
-    console.log(message);
-}
-
-const getInputFromUser = (message: string, inputType?: InputTypes): string => {
-    let input: string = readlineSync.question(message);
-
-    while (!validateInput(input, inputType)) {
-        input = readlineSync.question("Invalid input! Try again:\n");
-    }
-
-    return input;
-}
-
-const validateInput = (input: string, inputType?: InputTypes): boolean => {
-    switch (inputType) {
-        case InputTypes.YesOrNo:
-            return input.toUpperCase() === "Y" || input.toUpperCase() === "N";
-        case InputTypes.Letter:
-            return input.length === 1 && alphabet.includes(input.toLowerCase());
-        case InputTypes.MenuOption:
-            const parsedInput: number = parseInt(input);
-            return !isNaN(parsedInput) && parsedInput > 0 && parsedInput < menuOptions.length + 1;
-        default:
-            return true;
-    }
-}
-
-const pickRandomWord = (finalFantasyGames: FinalFantasy[]): string => {
-    let randomIndex: number = generateRandomNumber(finalFantasyGames.length);
-    const randomFinalFantasy: FinalFantasy = finalFantasyGames[randomIndex];
-    randomIndex = generateRandomNumber(randomFinalFantasy.characters.length);
-
-    return randomFinalFantasy.characters[randomIndex];
-}
-
-const convertLettersToUnderscores = (word: string): string => {
-    let wordWithUnderscores: string = "";
-
-    for (let letter of word) {
-        if (letter === " ") {
-            wordWithUnderscores += " ";
-        } else {
-            wordWithUnderscores += "_ ";
-        }
-    }
-
-    return wordWithUnderscores;
-}
-
-const showGameHud = (hangmanDraw: string, wordWithUnderscores: string, numberOfChances: number, alreadyGuessedLetters: string[]): void => {
-    displayMessage(hangmanDraw);
-    displayMessage(wordWithUnderscores + "\n");
-    displayMessage("Already guessed letters: " + alreadyGuessedLetters.join(", "));
-    displayMessage("Number of chances: " + numberOfChances.toString());
-}
-
-const showRules = (): void => {
-    clearConsole();
-    displayMessage(hangmanGameRules);
-    getInputFromUser("Press any key to go back to the main menu.\n");
-    runApp();
-}
-
-const displayMenuOptions = (menuOptions: string[]): void => {
-    menuOptions.forEach(option => {
-        displayMessage(option);
-    })
-}
-
-const showEndMessageOfTheGame = (endMessage: string, characterName: string, finalFantasyGames: FinalFantasy[]): void => {
-    let fianlFantasy: FinalFantasy = finalFantasyGames[0];
-    
-    for (let currentFinalFantasy of finalFantasyGames) {
-        if (currentFinalFantasy.characters.includes(characterName)) {
-            fianlFantasy = currentFinalFantasy
-        }
-    }
-
-    displayMessage(endMessage);
-    displayMessage(`${characterName} is from ${fianlFantasy.title}, which was released in ${fianlFantasy.year}.`);
-}
-
 const quitGame = (): void => {
+    clearConsole();
     displayMessage("Bye-bye!");
 }
 
@@ -181,7 +184,7 @@ const quitGame = (): void => {
 const runApp = (): void => {
     clearConsole();
     displayMessage("Welcome to Final Fantasy Hangman Game!\n\nChoose an option:");
-    displayMenuOptions(menuOptions);
+    showMenuOptions(menuOptions);
     const choosenMenuOption: string = getInputFromUser("", InputTypes.MenuOption);
 
     switch (choosenMenuOption) {
