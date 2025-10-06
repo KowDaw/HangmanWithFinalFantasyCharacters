@@ -8,11 +8,7 @@ import readlineSync from "readline-sync";
 // Global Variables
 
 const alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split("");
-const menuOptions: string[] = [
-    "1 - Rules",
-    "2 - Play",
-    "3 - Quit"
-];
+const menuOptions: string[] = ["1 - Rules", "2 - Play", "3 - Quit"];
 
 // Functions
 
@@ -52,7 +48,7 @@ const validateInput = (input: string, inputType?: InputTypes): boolean => {
     }
 }
 
-const pickRandomWord = (finalFantasyGames: FinalFantasy[]): string => {
+const pickRandomCharacterNameFromRandomFinalFantasy = (finalFantasyGames: FinalFantasy[]): string => {
     let randomIndex: number = generateRandomNumber(finalFantasyGames.length);
     const randomFinalFantasy: FinalFantasy = finalFantasyGames[randomIndex];
     randomIndex = generateRandomNumber(randomFinalFantasy.characters.length);
@@ -104,17 +100,16 @@ const showEndMessageOfTheGame = (endMessage: string, characterName: string, fina
         }
     }
 
-    displayMessage(endMessage);
-    displayMessage(`${characterName} is from ${fianlFantasy.title}, which was released in ${fianlFantasy.year}.`);
+    displayMessage(`${endMessage}\n${characterName} is from ${fianlFantasy.title}, which was released in ${fianlFantasy.year}.`);
 }
 
 const playGame = (): void => {
     clearConsole();
-    getInputFromUser("Let's play! Press Enter!\n");
+    getInputFromUser("Let's play! Press any Key!\n");
 
     let indexOfHangmanDraws: number = 0;
     let numberOfChances: number = 6;
-    let word: string = pickRandomWord(finalFantasyGames);
+    let word: string = pickRandomCharacterNameFromRandomFinalFantasy(finalFantasyGames);
     let wordWithUnderscores: string = convertLettersToUnderscores(word);
     let wordArrayWithUnderscores = wordWithUnderscores.split(" ");
     let endMessage: string = "\nCongratulations!\nThe name was: " + word;
@@ -124,16 +119,14 @@ const playGame = (): void => {
         showGameHud(hangmanDraws[indexOfHangmanDraws], wordWithUnderscores, numberOfChances, alreadyGuessedLetters);
 
         let guess: string = getInputFromUser("Type a letter:\n");
-        let isGuessValid: boolean = validateInput(guess, InputTypes.Letter);
         let invalidGuessMessage: string = "Only one letter is acceptable! Try again! Type a letter:\n";
 
-        while (!isGuessValid || alreadyGuessedLetters.includes(guess.toUpperCase())) {
+        while (!validateInput(guess, InputTypes.Letter) || alreadyGuessedLetters.includes(guess.toUpperCase())) {
             if (alreadyGuessedLetters.includes(guess.toUpperCase())) {
                 invalidGuessMessage = "This letter was already! Try again! Type a letter:\n";
             }
 
             guess = getInputFromUser(invalidGuessMessage);
-            isGuessValid = validateInput(guess, InputTypes.Letter);
         }
 
         alreadyGuessedLetters.push(guess.toUpperCase());
@@ -160,18 +153,12 @@ const playGame = (): void => {
     showEndMessageOfTheGame(endMessage, word, finalFantasyGames);
 
     let input: string = getInputFromUser("\nWould you like to play one more time?\n['Y' / 'N']\n");
-    let isInputValid: boolean = validateInput(input, InputTypes.YesOrNo);
 
-    while (!isInputValid) {
+    while (!validateInput(input, InputTypes.YesOrNo)) {
         input = getInputFromUser("Invalid input! Try again!");
-        isInputValid = validateInput(input, InputTypes.YesOrNo);
     }
 
-    if (input.toUpperCase() === "Y") {
-        playGame();
-    } else {
-        runApp();
-    }
+    input.toUpperCase() === "Y" ? playGame() : runApp();
 }
 
 const quitGame = (): void => {
