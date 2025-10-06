@@ -16,7 +16,7 @@ const menuOptions: string[] = [
 
 // Functions
 
-const playTheGame = (): void => {
+const playGame = (): void => {
     getInputFromUser("Let's play! Press Enter!\n");
 
     let indexOfHangmanDraws: number = 0;
@@ -75,7 +75,7 @@ const playTheGame = (): void => {
     }
 
     if (input.toUpperCase() === "Y") {
-        playTheGame();
+        playGame();
     } else {
         runApp();
     }
@@ -85,24 +85,35 @@ const generateRandomNumber = (number: number): number => {
     return Math.floor(Math.random() * number);
 }
 
+const clearConsole = (): void => {
+    console.clear();
+}
+
 const displayMessage = (message: string): void => {
     console.log(message);
 }
 
-const getInputFromUser = (message?: string): string => {
-    const input: string = readlineSync.question(message);
+const getInputFromUser = (message: string, inputType?: InputTypes): string => {
+    let input: string = readlineSync.question(message);
+
+    while (!validateInput(input, inputType)) {
+        input = readlineSync.question("Invalid input! Try again:\n");
+    }
+
     return input;
 }
 
-const validateInput = (input: string, inputType: InputTypes): boolean => {
+const validateInput = (input: string, inputType?: InputTypes): boolean => {
     switch (inputType) {
         case InputTypes.YesOrNo:
             return input.toUpperCase() === "Y" || input.toUpperCase() === "N";
         case InputTypes.Letter:
             return input.length === 1 && alphabet.includes(input.toLowerCase());
-        default:
+        case InputTypes.MenuOption:
             const parsedInput: number = parseInt(input);
             return !isNaN(parsedInput) && parsedInput > 0 && parsedInput < menuOptions.length + 1;
+        default:
+            return true;
     }
 }
 
@@ -128,21 +139,6 @@ const convertLettersToUnderscores = (word: string): string => {
     return wordWithUnderscores;
 }
 
-const chooseMenuOption = (): string => {
-    displayMessage("Welcome to Final Fantasy Hangman Game!\n\nChoose an option:");
-    displayMenuOptions(menuOptions);
-
-    let input: string = getInputFromUser();
-    let isInputValid: boolean = validateInput(input, InputTypes.Number);
-
-    while (!isInputValid) {
-        input = getInputFromUser("Invalid input! Try again!\n\nChoose an option:\n1 - Rules\n2 - Play\n3 - Quit\n");
-        isInputValid = validateInput(input, InputTypes.Number);
-    }
-
-    return input;
-}
-
 const showGameHud = (hangmanDraw: string, wordWithUnderscores: string, numberOfChances: number, alreadyGuessedLetters: string[]): void => {
     displayMessage(hangmanDraw);
     displayMessage(wordWithUnderscores + "\n");
@@ -150,7 +146,8 @@ const showGameHud = (hangmanDraw: string, wordWithUnderscores: string, numberOfC
     displayMessage("Number of chances: " + numberOfChances.toString());
 }
 
-const showGameRules = (): void => {
+const showRules = (): void => {
+    clearConsole();
     displayMessage(hangmanGameRules);
     getInputFromUser("Press any key to go back to the main menu.\n");
     runApp();
@@ -182,14 +179,17 @@ const quitGame = (): void => {
 // App
 
 const runApp = (): void => {
-    const choosenMenuOption: string = chooseMenuOption();
+    clearConsole();
+    displayMessage("Welcome to Final Fantasy Hangman Game!\n\nChoose an option:");
+    displayMenuOptions(menuOptions);
+    const choosenMenuOption: string = getInputFromUser("", InputTypes.MenuOption);
 
     switch (choosenMenuOption) {
         case "1":
-            showGameRules()
+            showRules()
             break;
         case "2":
-            playTheGame();
+            playGame();
             break;
         case "3":
             quitGame();
@@ -198,7 +198,3 @@ const runApp = (): void => {
 }
 
 runApp();
-
-
-
-// Test comment

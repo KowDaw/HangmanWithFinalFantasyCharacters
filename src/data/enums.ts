@@ -1,7 +1,7 @@
 enum InputTypes {
     YesOrNo,
     Letter,
-    Number
+    MenuOption
 }
 
 export { InputTypes };
