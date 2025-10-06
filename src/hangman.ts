@@ -57,17 +57,7 @@ const pickRandomCharacterNameFromRandomFinalFantasy = (finalFantasyGames: FinalF
 }
 
 const convertLettersToUnderscores = (word: string): string => {
-    let wordWithUnderscores: string = "";
-
-    for (let letter of word) {
-        if (letter === " ") {
-            wordWithUnderscores += " ";
-        } else {
-            wordWithUnderscores += "_ ";
-        }
-    }
-
-    return wordWithUnderscores;
+    return word.split("").map(character => (character === " " ? " " : "_ ")).join("");
 }
 
 const showGameHud = (hangmanDraw: string, wordWithUnderscores: string, numberOfChances: number, alreadyGuessedLetters: string[]): void => {
